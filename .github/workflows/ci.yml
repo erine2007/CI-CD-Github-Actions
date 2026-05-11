@@ -50,10 +50,24 @@ jobs:
         run: docker build -t trainshop-frontend ./frontend
 
       - name: Lancer le container de l'API
-        run: docker run -d -p 3000:3000 --name trainshop-api-test trainshop-api
+        run: |
+          docker run -d -p 3000:3000 \
+            --name trainshop-api-test \
+            -e DATABASE_URL="" \
+            -e NODE_ENV=test \
+            trainshop-api
 
       - name: Attendre que l'API démarre
-        run: sleep 5
+        run: |
+          echo "Attente du démarrage..."
+          for i in {1..15}; do
+            curl -s http://localhost:3000/health && echo "✅ API prête" && exit 0
+            echo "Tentative $i/15..."
+            sleep 2
+          done
+          echo "❌ L'API n'a pas démarré"
+          docker logs trainshop-api-test
+          exit 1
 
       - name: Tester la route /health
         run: |
