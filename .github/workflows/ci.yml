@@ -26,6 +26,10 @@ jobs:
         working-directory: api
         run: npm install
 
+      - name: Vérifier la qualité du code
+        working-directory: api
+        run: npm run lint
+
       - name: Lancer les tests
         working-directory: api
         run: npm test
@@ -44,3 +48,18 @@ jobs:
 
       - name: Construire l'image Docker du frontend
         run: docker build -t trainshop-frontend ./frontend
+
+      - name: Lancer le container de l'API
+        run: docker run -d -p 3000:3000 --name trainshop-api-test trainshop-api
+
+      - name: Attendre que l'API démarre
+        run: sleep 5
+
+      - name: Tester la route /health
+        run: |
+          curl --fail http://localhost:3000/health
+          echo "✅ /health répond correctement"
+
+      - name: Nettoyer le container
+        if: always()
+        run: docker rm -f trainshop-api-test
