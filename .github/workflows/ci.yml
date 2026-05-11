@@ -39,9 +39,29 @@ jobs:
     runs-on: ubuntu-latest
     needs: test-api
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: trainshop
+          POSTGRES_PASSWORD: trainshop
+          POSTGRES_DB: trainshop
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v4
+
+      - name: Initialiser la base de données
+        run: |
+          psql postgresql://trainshop:trainshop@localhost:5432/trainshop \
+            -f database/init/001-init.sql
 
       - name: Construire l'image Docker de l'API
         run: docker build -t trainshop-api ./api
@@ -53,8 +73,8 @@ jobs:
         run: |
           docker run -d -p 3000:3000 \
             --name trainshop-api-test \
-            -e DATABASE_URL="" \
-            -e NODE_ENV=test \
+            --network host \
+            -e DATABASE_URL="postgresql://trainshop:trainshop@localhost:5432/trainshop" \
             trainshop-api
 
       - name: Attendre que l'API démarre
