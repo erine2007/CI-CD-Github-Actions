@@ -35,9 +35,9 @@ app.get('/health', async (req, res) => {
 
 app.get('/about', (req, res) => {
   res.json({
-    project: "TrainShop Starter",
-    module: "DevOps",
-    objective: "Créer une CI GitHub Actions"
+    project: 'TrainShop Starter',
+    module: 'DevOps',
+    objective: 'Créer une CI GitHub Actions'
   });
 });
 
