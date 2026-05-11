@@ -33,6 +33,14 @@ app.get('/health', async (req, res) => {
   }
 });
 
+app.get('/about', (req, res) => {
+  res.json({
+    project: "TrainShop Starter",
+    module: "DevOps",
+    objective: "Créer une CI GitHub Actions"
+  });
+});
+
 app.get('/products', async (req, res) => {
   try {
     const result = await pool.query(
